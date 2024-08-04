@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Registered users{% endblock %}
+
+{% block content %}
+<h1>Registered Users and Tokens</h1>
+<table class="table table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>User name</th>
+            <th>Token</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="/" class="btn btn-secondary">back</a>
+{% endblock %}
