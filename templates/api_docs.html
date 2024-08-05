@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation{% endblock %}
+
+{% block content %}
+<h1>API Documentation</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h2>Introduction</h2>
+        <p>This API allows you to generate a token associated with a username and access protected data using that token. Below, you will find details on how to use this API.</p>
+        
+        <h2>Generate Token</h2>
+        <p>To generate a token, follow these steps:</p>
+        <ol>
+            <li>Go to the main page.</li>
+            <li>Enter your username and click on "Generate Token".</li>
+            <li>The generated token will be displayed on the screen.</li>
+        </ol>
+        <p>Example request using <code>requests</code>:</p>
+        <pre><code>import requests
+
+response = requests.post('http://127.0.0.1:5000/', data={'username': 'your_username'})
+print(response.text)</code></pre>
+        
+        <h2>Access Protected Data</h2>
+        <p>To access the protected data, send a GET request to the URL <code>/api/data</code> with the generated token in the authorization header.</p>
+        <p>Example request using <code>requests</code>:</p>
+        <pre><code>import requests
+
+url = 'http://127.0.0.1:5000/api/data'
+headers = {'Authorization': 'your_token_here'}
+response = requests.get(url, headers=headers)
+
+print(response.json())</code></pre>
+        <p>If the token is valid, you will receive a response containing the protected data.</p>
+        
+        <h2>List of Endpoints</h2>
+        <ul>
+            <li><code>GET /api/data</code>: Returns protected data, requires the <code>Authorization</code> header with a valid token.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

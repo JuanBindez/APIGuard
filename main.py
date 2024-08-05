@@ -94,6 +94,10 @@ def list_users():
     
     return render_template('users.html', users=users)
 
+@app.route('/api/docs', methods=['GET'])
+def api_docs():
+    return render_template('api_docs.html')
+
 
 @app.route('/register', methods=('GET', 'POST'))
 #@login_required # After registering an admin, uncomment this line for page security
