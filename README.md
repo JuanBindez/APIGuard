@@ -1,4 +1,4 @@
-# API Token System
+# APIGuard
 
 Token system to protect your API
 
