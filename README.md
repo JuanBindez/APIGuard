@@ -1,6 +1,6 @@
 # API Token System
 
-token system to protect uses api
+Token system to protect your API
 
 ### Install requirements:
     pip install -r requiments.txt
