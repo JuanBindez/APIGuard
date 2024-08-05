@@ -13,15 +13,6 @@
 ### create database:
     sqlite3 database.db < schema.sql
 
-# Deploy in GCP
-
-### How to initialize the gcloud CLI in project path
-    gcloud init
-
-### deploy
-    gcloud run deploy --source .
-
-
 ### Example of a script consuming data from a token-protected api
 
 ```python
@@ -54,3 +45,12 @@
 >>> 
 
 ```
+
+### Deploy in GCP
+
+### How to initialize the gcloud CLI in project path
+    gcloud init
+
+### deploy
+    gcloud run deploy --source .
+
