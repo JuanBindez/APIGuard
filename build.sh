@@ -3,5 +3,5 @@
 git add .
 git commit -m 'update'
 git push -u origin dev
-git tag v1.0-rc2
+git tag v1.0-rc3
 git push --tag

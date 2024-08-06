@@ -18,7 +18,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')  # Change this to a secure key in production
 
-DATABASE = 'database.db'
+DATABASE = 'manage.db'
 
 class User(UserMixin):
     def __init__(self, id, username, password):
@@ -48,7 +48,7 @@ def close_connection(exception):
 
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
-def index():
+def admin():
     if request.method == 'POST':
         username = request.form['username']
         token = str(uuid.uuid4())
@@ -57,11 +57,17 @@ def index():
         try:
             conn.execute("INSERT INTO users (username, token) VALUES (?, ?)", (username, token))
             conn.commit()
-            return f'Token gerado: {token}'
+
+            conn = get_db_connection()
+            cursor = conn.execute("SELECT username, token FROM users")
+            users = cursor.fetchall()
+            return render_template('users.html', users=users)
+        
         except sqlite3.IntegrityError:
             return 'User already exists or error generating the token.', 400
     
     return render_template('admin.html')
+
 
 @app.route('/api/data', methods=['GET'])
 def protected_data():
@@ -71,9 +77,9 @@ def protected_data():
 
     conn = get_db_connection()
     cursor = conn.execute("SELECT * FROM users WHERE token = ?", (token,))
-    user = cursor.fetchone()
+    user_token_ok = cursor.fetchone()
     
-    if user:
+    if user_token_ok:
         return jsonify({'data': 'here is the protected data'}), 200
     else:
         return jsonify({'message': 'Invalid token'}), 403
@@ -128,7 +134,7 @@ def login():
             user_obj = User(id=user['id'], username=user['username'], password=user['password'])
             login_user(user_obj)
             flash('Logged in successfully.')
-            return redirect(url_for('index'))
+            return redirect(url_for('admin'))
         else:
             flash('Invalid username or password.')
     

@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('manage.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -39,15 +39,33 @@ def register(username, password):
     try:
         conn.execute('INSERT INTO admins (username, password) VALUES (?, ?)', (username, hashed_password))
         conn.commit()
-        print('Superuser created successfully.')
+        print(
+            """
+            APIGuard Admin
+
+            Account created successfully, run the application and access the route http://127.0.0.1:5000/admin
+
+            On this page you will find how to create token users to protect your API    
+            """
+        )
     except sqlite3.IntegrityError:
         print('Error: Username already exists.')
     finally:
         conn.close()
 
 def create_superuser():
-    username = input('username > ')
-    password = getpass.getpass('password > ')
+    print(
+        """
+        APIGuard Admin
+
+        create an account to manage users and tokens
+
+
+        """
+    )
+
+    username = input('Your Username > ')
+    password = getpass.getpass('Your Password > ')
     register(username, password)
 
 if __name__ == "__main__":
