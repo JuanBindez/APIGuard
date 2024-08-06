@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, request, render_template, redirect, url_for, jsonify, flash, session, g
 import sqlite3
 import os
@@ -20,6 +21,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')  # Change this to
 
 DATABASE = 'manage.db'
 
+# Configuração de logging
+logging.basicConfig(filename='apiguard.log', level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+
 class User(UserMixin):
     def __init__(self, id, username, password):
         self.id = id
@@ -27,7 +32,7 @@ class User(UserMixin):
         self.password = password
 
 def get_db_connection():
-    conn = sqlite3.connect(DATABASE, timeout=10)
+    conn = sqlite3.connect(DATABASE, timeout=20)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -58,23 +63,25 @@ def admin():
             conn.execute("INSERT INTO users (username, token) VALUES (?, ?)", (username, token))
             conn.commit()
 
+            app.logger.warning(f"[Token generated for user {username}]")
+            
             conn = get_db_connection()
             cursor = conn.execute("SELECT username, token FROM users")
             users = cursor.fetchall()
             return render_template('users.html', users=users)
         
         except sqlite3.IntegrityError:
-            return 'User already exists or error generating the token.', 400
+            app.logger.error(f"[Failed to insert user {username}: IntegrityError]")
+            flash('User already exists or error generating the token.')
+            return redirect(url_for('list_users'))
     
     return render_template('admin.html')
 
-
 @app.route('/api/data', methods=['GET'])
 def protected_data():
-    """Here is a simple example of how you can secure the API with a token check"""
-
     token = request.headers.get('Authorization')
     if not token:
+        app.logger.warning('Token not provided')
         return jsonify({'message': 'Token not provided'}), 401
 
     conn = get_db_connection()
@@ -82,8 +89,10 @@ def protected_data():
     user_token_ok = cursor.fetchone()
     
     if user_token_ok:
+        app.logger.warning(f"[Protected data accessed with token: {token}]")
         return jsonify({'data': 'here is the protected data'}), 200
     else:
+        app.logger.warning(f"Invalid token used: {token}")
         return jsonify({'message': 'Invalid token'}), 403
 
 @app.route('/users', methods=['GET'])
@@ -96,11 +105,9 @@ def list_users():
     
     return render_template('users.html', users=users)
 
-
 @app.route('/api/docs', methods=['GET'])
 def api_docs():
     return render_template('api_docs.html')
-
 
 @app.route('/register', methods=('GET', 'POST'))
 @login_required
@@ -114,8 +121,10 @@ def register():
         try:
             conn.execute('INSERT INTO admins (username, password) VALUES (?, ?)', (username, hashed_password))
             conn.commit()
+            app.logger.warning(f"User {username} registered successfully")
         except sqlite3.IntegrityError:
             flash('Username already exists.')
+            app.logger.error(f"Failed to register user {username}: IntegrityError")
             return redirect(url_for('register'))
         finally:
             conn.close()
@@ -137,9 +146,11 @@ def login():
         if user and bcrypt.check_password_hash(user['password'], password):
             user_obj = User(id=user['id'], username=user['username'], password=user['password'])
             login_user(user_obj)
+            app.logger.warning(f"User {username} logged in successfully")
             flash('Logged in successfully.')
             return redirect(url_for('admin'))
         else:
+            app.logger.warning(f"[Failed login attempt for user {username}]")
             flash('Invalid username or password.')
     
     return render_template('login.html')
@@ -147,6 +158,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    app.logger.warning(f"User {current_user.username} logged out")
     logout_user()
     flash('Logged out successfully.')
     return redirect(url_for('login'))
@@ -158,6 +170,7 @@ def delete_user(username):
     conn.execute('DELETE FROM users WHERE username = ?', (username,))
     conn.commit()
     conn.close()
+    app.logger.warning(f"User {username} deleted successfully")
     flash(f'User {username} deleted successfully.')
     return redirect(url_for('list_users'))
 
@@ -168,8 +181,18 @@ def generate_token(username):
     with get_db_connection() as conn:
         conn.execute('UPDATE users SET token = ? WHERE username = ?', (new_token, username))
         conn.commit()
-    flash(f'New token generated for {username}.')
+    app.logger.warning(f"New token generated for {username}")
+    flash(f'[New token generated for {username}.]')
     return redirect(url_for('list_users'))
+
+@app.route('/log', methods=['GET'])
+@login_required
+def log():
+    if current_user.is_authenticated:
+        return send_from_directory(directory='.', path='apiguard.log', as_attachment=True)
+    else:
+        flash('Unauthorized access.')
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
