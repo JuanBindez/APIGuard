@@ -20,7 +20,6 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')  # Change this to
 
 DATABASE = 'database.db'
 
-
 class User(UserMixin):
     def __init__(self, id, username, password):
         self.id = id
@@ -31,12 +30,6 @@ def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,26 +42,26 @@ def load_user(user_id):
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    conn = getattr(g, '_database', None)
+    if conn is not None:
+        conn.close()
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == 'POST':
         username = request.form['username']
         token = str(uuid.uuid4())
 
-        db = get_db()
+        conn = get_db_connection()
         try:
-            db.execute("INSERT INTO users (username, token) VALUES (?, ?)", (username, token))
-            db.commit()
+            conn.execute("INSERT INTO users (username, token) VALUES (?, ?)", (username, token))
+            conn.commit()
             return f'Token gerado: {token}'
         except sqlite3.IntegrityError:
             return 'User already exists or error generating the token.', 400
     
-    return render_template('index.html')
+    return render_template('admin.html')
 
 @app.route('/api/data', methods=['GET'])
 def protected_data():
@@ -76,8 +69,8 @@ def protected_data():
     if not token:
         return jsonify({'message': 'Token not provided'}), 401
 
-    db = get_db()
-    cursor = db.execute("SELECT * FROM users WHERE token = ?", (token,))
+    conn = get_db_connection()
+    cursor = conn.execute("SELECT * FROM users WHERE token = ?", (token,))
     user = cursor.fetchone()
     
     if user:
@@ -88,8 +81,8 @@ def protected_data():
 @app.route('/users', methods=['GET'])
 @login_required
 def list_users():
-    db = get_db()
-    cursor = db.execute("SELECT username, token FROM users")
+    conn = get_db_connection()
+    cursor = conn.execute("SELECT username, token FROM users")
     users = cursor.fetchall()
     
     return render_template('users.html', users=users)
@@ -100,7 +93,7 @@ def api_docs():
 
 
 @app.route('/register', methods=('GET', 'POST'))
-#@login_required # After registering an admin, uncomment this line for page security
+@login_required
 def register():
     if request.method == 'POST':
         username = request.form['username']

@@ -5,13 +5,16 @@
 #### APIGuard is an API protection system developed to ensure secure access to your web services. Using token-based authentication, APIGuard allows developers to protect sensitive API endpoints in a simple and efficient way.
 
 ### Install requirements:
-    pip install -r requiments.txt
-
-### install sqlite:
-    sudo apt install sqlite3
+    pip install -r requirements.txt
 
 ### create database:
-    sqlite3 database.db < schema.sql
+    python3 manage.py cretate-database
+
+### create superuser
+    python3 manage.py create-superuser
+
+### run
+    python3 main.py
 
 ### Example of a script consuming data from a token-protected api
 
