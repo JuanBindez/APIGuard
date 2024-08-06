@@ -1,8 +1,68 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 20px;
+        }
+        .card-body h2 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+            color: #4CAF50;
+        }
+        .card-body p {
+            line-height: 1.6;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border-left: 4px solid #4CAF50;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            color: #d63384;
+        }
+        ol {
+            margin-left: 20px;
+        }
+        ul {
+            margin-left: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background: #4CAF50;
+            color: white;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        ul li code {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
 
-{% block title %}API Documentation{% endblock %}
-
-{% block content %}
 <h1>API Documentation</h1>
 
 <div class="card">
@@ -41,4 +101,6 @@ print(response.json())</code></pre>
         </ul>
     </div>
 </div>
-{% endblock %}
+
+</body>
+</html>

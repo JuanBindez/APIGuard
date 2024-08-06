@@ -27,7 +27,7 @@ class User(UserMixin):
         self.password = password
 
 def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(DATABASE, timeout=10)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -71,6 +71,8 @@ def admin():
 
 @app.route('/api/data', methods=['GET'])
 def protected_data():
+    """Here is a simple example of how you can secure the API with a token check"""
+
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({'message': 'Token not provided'}), 401
@@ -90,8 +92,10 @@ def list_users():
     conn = get_db_connection()
     cursor = conn.execute("SELECT username, token FROM users")
     users = cursor.fetchall()
+    conn.close()
     
     return render_template('users.html', users=users)
+
 
 @app.route('/api/docs', methods=['GET'])
 def api_docs():
@@ -146,6 +150,26 @@ def logout():
     logout_user()
     flash('Logged out successfully.')
     return redirect(url_for('login'))
+
+@app.route('/delete_user/<username>', methods=['POST'])
+@login_required
+def delete_user(username):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM users WHERE username = ?', (username,))
+    conn.commit()
+    conn.close()
+    flash(f'User {username} deleted successfully.')
+    return redirect(url_for('list_users'))
+
+@app.route('/generate_token/<username>', methods=['POST'])
+@login_required
+def generate_token(username):
+    new_token = str(uuid.uuid4())
+    with get_db_connection() as conn:
+        conn.execute('UPDATE users SET token = ? WHERE username = ?', (new_token, username))
+        conn.commit()
+    flash(f'New token generated for {username}.')
+    return redirect(url_for('list_users'))
 
 if __name__ == '__main__':
     app.run(debug=True)
