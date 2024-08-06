@@ -74,9 +74,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.command == 'create-superuser':
+    if args.command == 'create_superuser':
         create_superuser()
-    elif args.command == 'create-database':
+    elif args.command == 'create_database':
         create_database()
     else:
         print(f"Unknown command: {args.command}")

@@ -8,10 +8,10 @@
     pip install -r requirements.txt
 
 ### create database:
-    python3 manage.py cretate-database
+    python3 manage.py cretate_database
 
 ### create superuser
-    python3 manage.py create-superuser
+    python3 manage.py create_superuser
 
 ### run
     python3 main.py
