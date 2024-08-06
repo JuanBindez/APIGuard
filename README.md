@@ -16,6 +16,27 @@
 ### run
     python3 main.py
 
+![image](https://github.com/user-attachments/assets/afe56ad9-2dd3-42f1-ae66-7a27d42a40d0)
+
+![image](https://github.com/user-attachments/assets/6421fa4e-ad83-403f-b737-daffb8449f41)
+
+![image](https://github.com/user-attachments/assets/602506a9-ee47-473b-8f24-c0ba7069b308)
+
+![image](https://github.com/user-attachments/assets/e085f8af-e4d4-4a57-b6ac-96b94a2d616d)
+
+![image](https://github.com/user-attachments/assets/939bc425-84d4-4451-b4ac-4e56536f5b46)
+
+![image](https://github.com/user-attachments/assets/641e1c9b-134c-4650-8bae-42f3c32e297e)
+
+![image](https://github.com/user-attachments/assets/016dd469-b76f-409b-8591-8c7319c0464c)
+
+
+
+
+
+
+
+
 ### Example of a script consuming data from a token-protected api
 
 ```python
